@@ -151,8 +151,19 @@ function contributm_civicrm_preProcess($formName, &$form) {
  * Implements hook_civicrm_postProcess().
  */
 function contributm_civicrm_postProcess($formName, &$form) {
-  if (in_array($formName, array('CRM_Contribute_Form_Contribution_Main', 'CRM_Contribute_Form_Contribution'))) {
+  // Contribution
+  if ($formName == 'CRM_Contribute_Form_Contribution') {
     $contributionId = $form->_id;
+  }
+  // Contribution Page
+  else if ($formName == 'CRM_Contribute_Form_Contribution_Confirm') {
+    $contributionId = $form->_contributionID;
+  }
+  else {
+    $contributionId = 0;
+  }
+
+  if ($contributionId) {
     $utm = array(
       'utm_source' => '',
       'utm_medium' => '',
