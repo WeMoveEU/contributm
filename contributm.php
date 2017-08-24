@@ -147,37 +147,20 @@ function contributm_civicrm_preProcess($formName, &$form) {
 }
 
 
-/**
- * Implements hook_civicrm_postProcess().
- */
-function contributm_civicrm_postProcess($formName, &$form) {
-  // Contribution
-  if ($formName == 'CRM_Contribute_Form_Contribution') {
-    $contributionId = $form->_id;
+function contributm_civicrm_postSave_civicrm_contribution($dao) {
+  $utm = array(
+    'utm_source' => '',
+    'utm_medium' => '',
+    'utm_content' => '',
+    'utm_campaign' => ''
+  );
+  $session = CRM_Core_Session::singleton();
+  foreach ($utm as $item => $value) {
+    $utm[$item] = $session->get($item, 'contributm');
   }
-  // Contribution Page
-  else if ($formName == 'CRM_Contribute_Form_Contribution_Confirm') {
-    $contributionId = $form->_contributionID;
-  }
-  else {
-    $contributionId = 0;
-  }
-
-  if ($contributionId) {
-    $utm = array(
-      'utm_source' => '',
-      'utm_medium' => '',
-      'utm_content' => '',
-      'utm_campaign' => ''
-    );
-    $session = CRM_Core_Session::singleton();
-    foreach ($utm as $item => $value) {
-      $utm[$item] = $session->get($item, 'contributm');
-    }
-    setUtm($contributionId, $utm);
-    foreach ($utm as $item => $value) {
-      $session->set($item, null, 'contributm');
-    }
+  setUtm($dao->id, $utm);
+  foreach ($utm as $item => $value) {
+    $session->set($item, null, 'contributm');
   }
 }
 
@@ -188,7 +171,8 @@ function contributm_civicrm_postProcess($formName, &$form) {
 function setUtm($contributionId, $fields) {
   $params = array(
     'sequential' => 1,
-    'id' => $contributionId,
+    'entity_id' => $contributionId,
+    'entity_table' => 'civicrm_contribution',
   );
   $fields = (array)$fields;
   if (array_key_exists('utm_source', $fields) && $fields['utm_source']) {
@@ -203,7 +187,7 @@ function setUtm($contributionId, $fields) {
   if (array_key_exists('utm_campaign', $fields) && $fields['utm_campaign']) {
     $params['custom_33'] = $fields['utm_campaign'];
   }
-  if (count($params) > 2) {
-    civicrm_api3('Contribution', 'create', $params);
+  if (count($params) > 3) {
+    civicrm_api3('CustomValue', 'create', $params);
   }
 }
