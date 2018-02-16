@@ -14,8 +14,6 @@ function contributm_civicrm_config(&$config) {
 /**
  * Implements hook_civicrm_xmlMenu().
  *
- * @param $files array(string)
- *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_xmlMenu
  */
 function contributm_civicrm_xmlMenu(&$files) {
@@ -61,10 +59,6 @@ function contributm_civicrm_disable() {
 /**
  * Implements hook_civicrm_upgrade().
  *
- * @param $op string, the type of operation being performed; 'check' or 'enqueue'
- * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
- *
- * @return mixed
  *   Based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
  *                for 'enqueue', returns void
  *
@@ -110,7 +104,7 @@ function contributm_civicrm_caseTypes(&$caseTypes) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_caseTypes
  */
 function contributm_civicrm_angularModules(&$angularModules) {
-_contributm_civix_civicrm_angularModules($angularModules);
+  _contributm_civix_civicrm_angularModules($angularModules);
 }
 
 /**
@@ -129,15 +123,15 @@ function contributm_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 function contributm_civicrm_preProcess($formName, &$form) {
   if (in_array($formName, array('CRM_Contribute_Form_Contribution_Main', 'CRM_Contribute_Form_Contribution'))) {
     $page = new CRM_Core_Page();
-    $utmSource = CRM_Utils_Request::retrieve('utm_source', 'String', $page, false);
-    $utmMedium = CRM_Utils_Request::retrieve('utm_medium', 'String', $page, false);
-    $utmContent = CRM_Utils_Request::retrieve('utm_content', 'String', $page, false);
-    $utmCampaign = CRM_Utils_Request::retrieve('utm_campaign', 'String', $page, false);
+    $utmSource = CRM_Utils_Request::retrieve('utm_source', 'String', $page, FALSE);
+    $utmMedium = CRM_Utils_Request::retrieve('utm_medium', 'String', $page, FALSE);
+    $utmContent = CRM_Utils_Request::retrieve('utm_content', 'String', $page, FALSE);
+    $utmCampaign = CRM_Utils_Request::retrieve('utm_campaign', 'String', $page, FALSE);
     $utm = array(
       'utm_source' => $utmSource,
       'utm_medium' => $utmMedium,
       'utm_content' => $utmContent,
-      'utm_campaign' => $utmCampaign
+      'utm_campaign' => $utmCampaign,
     );
     $session = CRM_Core_Session::singleton();
     foreach ($utm as $item => $value) {
@@ -152,7 +146,7 @@ function contributm_civicrm_postSave_civicrm_contribution($dao) {
     'utm_source' => '',
     'utm_medium' => '',
     'utm_content' => '',
-    'utm_campaign' => ''
+    'utm_campaign' => '',
   );
   $session = CRM_Core_Session::singleton();
   foreach ($utm as $item => $value) {
@@ -160,7 +154,7 @@ function contributm_civicrm_postSave_civicrm_contribution($dao) {
   }
   setUtm($dao->id, $utm);
   foreach ($utm as $item => $value) {
-    $session->set($item, null, 'contributm');
+    $session->set($item, NULL, 'contributm');
   }
 }
 
@@ -174,7 +168,7 @@ function setUtm($contributionId, $fields) {
     'entity_id' => $contributionId,
     'entity_table' => 'civicrm_contribution',
   );
-  $fields = (array)$fields;
+  $fields = (array) $fields;
   if (array_key_exists('utm_source', $fields) && $fields['utm_source']) {
     $params['custom_30'] = $fields['utm_source'];
   }
