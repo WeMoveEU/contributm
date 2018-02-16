@@ -141,6 +141,11 @@ function contributm_civicrm_preProcess($formName, &$form) {
 }
 
 
+/**
+ * @param $dao
+ *
+ * @throws \CiviCRM_API3_Exception
+ */
 function contributm_civicrm_postSave_civicrm_contribution($dao) {
   $utm = array(
     'utm_source' => '',
@@ -161,6 +166,11 @@ function contributm_civicrm_postSave_civicrm_contribution($dao) {
 
 /**
  * Helper function for set up utm fields.
+ *
+ * @param $contributionId
+ * @param $fields
+ *
+ * @throws \CiviCRM_API3_Exception
  */
 function setUtm($contributionId, $fields) {
   $params = array(
@@ -169,16 +179,16 @@ function setUtm($contributionId, $fields) {
     'entity_table' => 'civicrm_contribution',
   );
   $fields = (array) $fields;
-  if (array_key_exists('utm_source', $fields) && $fields['utm_source']) {
+  if (CRM_Utils_Array::value('utm_source', $fields)) {
     $params['custom_30'] = $fields['utm_source'];
   }
-  if (array_key_exists('utm_medium', $fields) && $fields['utm_medium']) {
+  if (CRM_Utils_Array::value('utm_medium', $fields)) {
     $params['custom_31'] = $fields['utm_medium'];
   }
-  if (array_key_exists('utm_content', $fields) && $fields['utm_content']) {
+  if (CRM_Utils_Array::value('utm_content', $fields)) {
     $params['custom_32'] = $fields['utm_content'];
   }
-  if (array_key_exists('utm_campaign', $fields) && $fields['utm_campaign']) {
+  if (CRM_Utils_Array::value('utm_campaign', $fields)) {
     $params['custom_33'] = $fields['utm_campaign'];
   }
   if (count($params) > 3) {
