@@ -116,7 +116,6 @@ function contributm_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _contributm_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
-
 /**
  * Implements hook_civicrm_preProcess().
  */
@@ -130,16 +129,16 @@ function contributm_civicrm_preProcess($formName, &$form) {
     $utm = array(
       'utm_source' => $utmSource,
       'utm_medium' => $utmMedium,
-      'utm_content' => $utmContent,
       'utm_campaign' => $utmCampaign,
+      'utm_content' => $utmContent,
     );
     $session = CRM_Core_Session::singleton();
     foreach ($utm as $item => $value) {
       $session->set($item, $value, 'contributm');
+      $session->set($item, $value, 'recur_utm');
     }
   }
 }
-
 
 /**
  * @param $dao
@@ -163,6 +162,16 @@ function contributm_civicrm_postSave_civicrm_contribution($dao) {
   }
 }
 
+/**
+ * @param $dao
+ *
+ * @throws \CiviCRM_API3_Exception
+ */
+function contributm_civicrm_postSave_civicrm_contribution_recur($dao) {
+  $utm = CRM_Contributm_Model_UtmRecur::get();
+  CRM_Contributm_Model_UtmRecur::set($dao->id, $utm);
+  CRM_Contributm_Model_UtmRecur::clear();
+}
 
 /**
  * Helper function for set up utm fields.

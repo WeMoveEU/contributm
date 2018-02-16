@@ -5,6 +5,13 @@ class CRM_Contributm_Model_UtmRecur {
   const CUSTOM_GROUP_NAME_RECUR_UTM = 'recur_utm';
   const CUSTOM_FIELD_PREFIX = 'custom_';
 
+  public static $keys = [
+    'utm_source',
+    'utm_medium',
+    'utm_campaign',
+    'utm_content',
+  ];
+
   /**
    * @param $name
    *
@@ -88,6 +95,29 @@ class CRM_Contributm_Model_UtmRecur {
     return $cache;
   }
 
+  /**
+   * Get utm values from session.
+   *
+   * @return array
+   */
+  public static function get() {
+    $utm = [];
+    $session = CRM_Core_Session::singleton();
+    foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
+      $utm[$key] = $session->get($key, 'recur_utm');
+    }
+    return $utm;
+  }
+
+  /**
+   * Clear utm values from session.
+   */
+  public static function clear() {
+    $session = CRM_Core_Session::singleton();
+    foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
+      $session->set($key, NULL, 'recur_utm');
+    }
+  }
 
   /**
    * Set utm custom fields for given recurring contribution.
@@ -97,7 +127,7 @@ class CRM_Contributm_Model_UtmRecur {
    *
    * @throws \CiviCRM_API3_Exception
    */
-  function set($recurringId, $fields = []) {
+  public static function set($recurringId, $fields = []) {
     $params = array(
       'sequential' => 1,
       'entity_id' => $recurringId,
@@ -116,7 +146,7 @@ class CRM_Contributm_Model_UtmRecur {
       $params[self::utmContent()] = $fields['utm_content'];
     }
     if (count($params) > 3) {
-      civicrm_api3('CustomValue', 'create', $params);
+      $result = civicrm_api3('CustomValue', 'create', $params);
     }
   }
 
