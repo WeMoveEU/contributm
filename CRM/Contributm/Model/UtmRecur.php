@@ -103,7 +103,7 @@ class CRM_Contributm_Model_UtmRecur {
   public static function get() {
     $utm = [];
     $session = CRM_Core_Session::singleton();
-    foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
+    foreach (self::$keys as $key) {
       $v = $session->get($key, self::CUSTOM_GROUP_NAME);
       if ($v) {
         $utm[$key] = $v;
@@ -117,7 +117,7 @@ class CRM_Contributm_Model_UtmRecur {
    */
   public static function clear() {
     $session = CRM_Core_Session::singleton();
-    foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
+    foreach (self::$keys as $key) {
       $session->set($key, NULL, self::CUSTOM_GROUP_NAME);
     }
   }
