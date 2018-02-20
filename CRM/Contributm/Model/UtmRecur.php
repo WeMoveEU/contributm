@@ -2,7 +2,7 @@
 
 class CRM_Contributm_Model_UtmRecur {
 
-  const CUSTOM_GROUP_NAME_RECUR_UTM = 'recur_utm';
+  const CUSTOM_GROUP_NAME = 'recur_utm';
   const CUSTOM_FIELD_PREFIX = 'custom_';
 
   public static $keys = [
@@ -21,7 +21,7 @@ class CRM_Contributm_Model_UtmRecur {
   private static function getCustomFieldRecurUtm($name) {
     $result = civicrm_api3('CustomField', 'get', [
       'sequential' => 1,
-      'custom_group_id' => self::CUSTOM_GROUP_NAME_RECUR_UTM,
+      'custom_group_id' => self::CUSTOM_GROUP_NAME,
       'name' => $name,
     ]);
     return self::CUSTOM_FIELD_PREFIX . $result['id'];
@@ -104,7 +104,7 @@ class CRM_Contributm_Model_UtmRecur {
     $utm = [];
     $session = CRM_Core_Session::singleton();
     foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
-      $v = $session->get($key, 'recur_utm');
+      $v = $session->get($key, self::CUSTOM_GROUP_NAME);
       if ($v) {
         $utm[$key] = $v;
       }
@@ -118,7 +118,7 @@ class CRM_Contributm_Model_UtmRecur {
   public static function clear() {
     $session = CRM_Core_Session::singleton();
     foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
-      $session->set($key, NULL, 'recur_utm');
+      $session->set($key, NULL, self::CUSTOM_GROUP_NAME);
     }
   }
 

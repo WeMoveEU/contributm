@@ -142,7 +142,7 @@ function contributm_civicrm_preProcess($formName, &$form) {
       foreach ($utm as $item => $value) {
         if ($value) {
           if ($isRecur) {
-            $session->set($item, $value, 'recur_utm');
+            $session->set($item, $value, CRM_Contributm_Model_UtmRecur::CUSTOM_GROUP_NAME);
           }
           else {
             $session->set($item, $value, 'contributm');
