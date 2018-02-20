@@ -104,7 +104,10 @@ class CRM_Contributm_Model_UtmRecur {
     $utm = [];
     $session = CRM_Core_Session::singleton();
     foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
-      $utm[$key] = $session->get($key, 'recur_utm');
+      $v = $session->get($key, 'recur_utm');
+      if ($v) {
+        $utm[$key] = $v;
+      }
     }
     return $utm;
   }
@@ -131,7 +134,7 @@ class CRM_Contributm_Model_UtmRecur {
     $params = array(
       'sequential' => 1,
       'entity_id' => $recurringId,
-      'entity_table' => 'civicrm_contribution_recur',
+      'entity_table' => 'contributionRecur',
     );
     if (CRM_Utils_Array::value('utm_source', $fields)) {
       $params[self::utmSource()] = $fields['utm_source'];
