@@ -134,7 +134,7 @@ function contributm_civicrm_preProcess($formName, &$form) {
         'utm_content' => $utmContent,
       );
       $session = CRM_Core_Session::singleton();
-      $isRecur = (bool) $form->_submitValues['is_recur'];
+      $isRecur = (bool) CRM_Utils_Array::value('is_recur', $form->_submitValues);
       CRM_Contributm_Model_UtmRecur::clear();
       foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
         $session->set($key, NULL, 'contributm');
