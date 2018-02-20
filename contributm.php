@@ -121,21 +121,34 @@ function contributm_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  */
 function contributm_civicrm_preProcess($formName, &$form) {
   if (in_array($formName, array('CRM_Contribute_Form_Contribution_Main', 'CRM_Contribute_Form_Contribution'))) {
-    $page = new CRM_Core_Page();
-    $utmSource = CRM_Utils_Request::retrieve('utm_source', 'String', $page, FALSE);
-    $utmMedium = CRM_Utils_Request::retrieve('utm_medium', 'String', $page, FALSE);
-    $utmContent = CRM_Utils_Request::retrieve('utm_content', 'String', $page, FALSE);
-    $utmCampaign = CRM_Utils_Request::retrieve('utm_campaign', 'String', $page, FALSE);
-    $utm = array(
-      'utm_source' => $utmSource,
-      'utm_medium' => $utmMedium,
-      'utm_campaign' => $utmCampaign,
-      'utm_content' => $utmContent,
-    );
-    $session = CRM_Core_Session::singleton();
-    foreach ($utm as $item => $value) {
-      $session->set($item, $value, 'contributm');
-      $session->set($item, $value, 'recur_utm');
+    if ($form->_flagSubmitted) {
+      $page = new CRM_Core_Page();
+      $utmSource = CRM_Utils_Request::retrieve('utm_source', 'String', $page, FALSE);
+      $utmMedium = CRM_Utils_Request::retrieve('utm_medium', 'String', $page, FALSE);
+      $utmContent = CRM_Utils_Request::retrieve('utm_content', 'String', $page, FALSE);
+      $utmCampaign = CRM_Utils_Request::retrieve('utm_campaign', 'String', $page, FALSE);
+      $utm = array(
+        'utm_source' => $utmSource,
+        'utm_medium' => $utmMedium,
+        'utm_campaign' => $utmCampaign,
+        'utm_content' => $utmContent,
+      );
+      $session = CRM_Core_Session::singleton();
+      $isRecur = (bool) $form->_submitValues['is_recur'];
+      CRM_Contributm_Model_UtmRecur::clear();
+      foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
+        $session->set($key, NULL, 'contributm');
+      }
+      foreach ($utm as $item => $value) {
+        if ($value) {
+          if ($isRecur) {
+            $session->set($item, $value, 'recur_utm');
+          }
+          else {
+            $session->set($item, $value, 'contributm');
+          }
+        }
+      }
     }
   }
 }
@@ -146,19 +159,19 @@ function contributm_civicrm_preProcess($formName, &$form) {
  * @throws \CiviCRM_API3_Exception
  */
 function contributm_civicrm_postSave_civicrm_contribution($dao) {
-  $utm = array(
-    'utm_source' => '',
-    'utm_medium' => '',
-    'utm_content' => '',
-    'utm_campaign' => '',
-  );
+  $utm = [];
   $session = CRM_Core_Session::singleton();
-  foreach ($utm as $item => $value) {
-    $utm[$item] = $session->get($item, 'contributm');
+  foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
+    $v = $session->get($key, 'contributm');
+    if ($v) {
+      $utm[$key] = $v;
+    }
   }
-  setUtm($dao->id, $utm);
-  foreach ($utm as $item => $value) {
-    $session->set($item, NULL, 'contributm');
+  if ($utm) {
+    setUtm($dao->id, $utm);
+    foreach (CRM_Contributm_Model_UtmRecur::$keys as $key) {
+      $session->set($key, NULL, 'contributm');
+    }
   }
 }
 
@@ -169,8 +182,10 @@ function contributm_civicrm_postSave_civicrm_contribution($dao) {
  */
 function contributm_civicrm_postSave_civicrm_contribution_recur($dao) {
   $utm = CRM_Contributm_Model_UtmRecur::get();
-  CRM_Contributm_Model_UtmRecur::set($dao->id, $utm);
-  CRM_Contributm_Model_UtmRecur::clear();
+  if ($utm) {
+    CRM_Contributm_Model_UtmRecur::set($dao->id, $utm);
+    CRM_Contributm_Model_UtmRecur::clear();
+  }
 }
 
 /**
