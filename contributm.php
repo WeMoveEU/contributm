@@ -204,16 +204,16 @@ function setUtm($contributionId, $fields) {
   );
   $fields = (array) $fields;
   if (CRM_Utils_Array::value('utm_source', $fields)) {
-    $params['custom_30'] = $fields['utm_source'];
+    $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_source')] = $fields['utm_source'];
   }
   if (CRM_Utils_Array::value('utm_medium', $fields)) {
-    $params['custom_31'] = $fields['utm_medium'];
+    $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_medium')] = $fields['utm_medium'];
   }
   if (CRM_Utils_Array::value('utm_content', $fields)) {
-    $params['custom_32'] = $fields['utm_content'];
+    $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_content')] = $fields['utm_content'];
   }
   if (CRM_Utils_Array::value('utm_campaign', $fields)) {
-    $params['custom_33'] = $fields['utm_campaign'];
+    $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_campaign')] = $fields['utm_campaign'];
   }
   if (count($params) > 3) {
     civicrm_api3('CustomValue', 'create', $params);
