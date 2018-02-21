@@ -121,12 +121,12 @@ function contributm_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  */
 function contributm_civicrm_preProcess($formName, &$form) {
   if (in_array($formName, array('CRM_Contribute_Form_Contribution_Main', 'CRM_Contribute_Form_Contribution'))) {
+    $utm = [];
+    $page = new CRM_Core_Page();
+    foreach (CRM_Contributm_Model_Utm::$keys as $key) {
+      $utm[$key] = CRM_Utils_Request::retrieve($key, 'String', $page, FALSE);
+    }
     if ($form->_flagSubmitted) {
-      $utm = [];
-      $page = new CRM_Core_Page();
-      foreach (CRM_Contributm_Model_Utm::$keys as $key) {
-        $utm[$key] = CRM_Utils_Request::retrieve($key, 'String', $page, FALSE);
-      }
       $session = CRM_Core_Session::singleton();
       $isRecur = (bool) CRM_Utils_Array::value('is_recur', $form->_submitValues);
       CRM_Contributm_Model_UtmRecur::clear();
