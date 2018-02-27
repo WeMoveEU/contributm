@@ -40,17 +40,17 @@ class CRM_Contributm_Model_Utm {
   }
 
   /**
-   * Set utm custom fields for given recurring contribution.
+   * Set utm custom fields for given single contribution.
    *
-   * @param int $recurringId
+   * @param int $contributionId
    * @param array $fields
    *
    * @throws \CiviCRM_API3_Exception
    */
-  public static function set($recurringId, $fields = []) {
+  public static function set($contributionId, $fields = []) {
     $params = array(
       'sequential' => 1,
-      'entity_id' => $recurringId,
+      'entity_id' => $contributionId,
       'entity_table' => 'civicrm_contribution',
     );
     if (CRM_Utils_Array::value('utm_source', $fields)) {
