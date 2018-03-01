@@ -123,6 +123,40 @@ class CRM_Contributm_Model_UtmRecur {
   }
 
   /**
+   * Get utms for this recurring contribution saved in db.
+   *
+   * @param $recurringId
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function getDb($recurringId) {
+    $return  = [
+      'utm_source' => self::utmSource(),
+      'utm_medium' => self::utmMedium(),
+      'utm_campaign' => self::utmCampaign(),
+      'utm_content' => self::utmContent(),
+    ];
+    $params = [
+      'sequential' => 1,
+      'id' => $recurringId,
+      'return' => implode(',', $return),
+    ];
+    $result = civicrm_api3('ContributionRecur', 'get', $params);
+    if ($result['count']) {
+      $values = $result['values'][0];
+      $utms = [];
+      foreach ($return as $key => $column) {
+        if (CRM_Utils_Array::value($column, $values, NULL)) {
+          $utms[$key] = CRM_Utils_Array::value($column, $values, NULL);
+        }
+      }
+      return $utms;
+    }
+    return [];
+  }
+
+  /**
    * Set utm custom fields for given recurring contribution.
    *
    * @param int $recurringId
