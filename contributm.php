@@ -161,7 +161,7 @@ function contributm_civicrm_postSave_civicrm_contribution($dao) {
     if ($utmRecur) {
       $utmSingle = CRM_Contributm_Model_Utm::getDb($dao->id);
       if (!$utmSingle) {
-        CRM_Contributm_Model_Utm::set($dao->id, $utm);
+        CRM_Contributm_Model_Utm::set($dao->id, $utmRecur);
       }
     }
   }
