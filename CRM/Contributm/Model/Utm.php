@@ -49,10 +49,10 @@ class CRM_Contributm_Model_Utm {
    */
   public static function getDb($contributionId) {
     $return  = [
-      'utm_source' => CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_source'),
-      'utm_medium' => CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_medium'),
-      'utm_campaign' => CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_campaign'),
-      'utm_content' => CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_content'),
+      'utm_source' => Civi::settings()->get('field_contribution_source'),
+      'utm_medium' => Civi::settings()->get('field_contribution_medium'),
+      'utm_campaign' => Civi::settings()->get('field_contribution_campaign'),
+      'utm_content' => Civi::settings()->get('field_contribution_content'),
     ];
     $params = [
       'sequential' => 1,
@@ -84,23 +84,21 @@ class CRM_Contributm_Model_Utm {
   public static function set($contributionId, $fields = []) {
     $params = array(
       'sequential' => 1,
-      'entity_id' => $contributionId,
-      'entity_table' => 'civicrm_contribution',
+      'id' => $contributionId,
     );
-    if (CRM_Utils_Array::value('utm_source', $fields)) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_source')] = $fields['utm_source'];
+    $mapping = [
+      'utm_source' => 'field_contribution_source',
+      'utm_medium' => 'field_contribution_medium',
+      'utm_campaign' => 'field_contribution_campaign',
+      'utm_content' => 'field_contribution_content',
+    ];
+    foreach ($mapping as $field => $setting) {
+      if (CRM_Utils_Array::value($field, $fields)) {
+        $params[Civi::settings()->get($setting)] = CRM_Utils_Array::value($field, $fields);
+      }
     }
-    if (CRM_Utils_Array::value('utm_medium', $fields)) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_medium')] = $fields['utm_medium'];
-    }
-    if (CRM_Utils_Array::value('utm_content', $fields)) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_content')] = $fields['utm_content'];
-    }
-    if (CRM_Utils_Array::value('utm_campaign', $fields)) {
-      $params[CRM_Core_BAO_Setting::getItem('Speakcivi API Preferences', 'field_contribution_campaign')] = $fields['utm_campaign'];
-    }
-    if (count($params) > 3) {
-      civicrm_api3('CustomValue', 'create', $params);
+    if (count($params) > 2) {
+      civicrm_api3('Contribution', 'create', $params);
     }
   }
 
