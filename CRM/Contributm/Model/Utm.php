@@ -84,7 +84,8 @@ class CRM_Contributm_Model_Utm {
   public static function set($contributionId, $fields = []) {
     $params = array(
       'sequential' => 1,
-      'id' => $contributionId,
+      'entity_id' => $contributionId,
+      'entity_table' => 'civicrm_contribution',
     );
     $mapping = [
       'utm_source' => 'field_contribution_source',
@@ -97,8 +98,9 @@ class CRM_Contributm_Model_Utm {
         $params[Civi::settings()->get($setting)] = CRM_Utils_Array::value($field, $fields);
       }
     }
-    if (count($params) > 2) {
-      civicrm_api3('Contribution', 'create', $params);
+    if (count($params) > 3) {
+      # civicrm_api3('Contribution', 'create', $params);
+      civicrm_api3('CustomValue', 'create', $params);
     }
   }
 
