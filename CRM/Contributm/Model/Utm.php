@@ -2,7 +2,8 @@
 
 class CRM_Contributm_Model_Utm {
 
-  const CUSTOM_GROUP_NAME = 'contributm';
+  const CUSTOM_GROUP_NAME = 'utm';
+  const CUSTOM_FIELD_PREFIX = 'custom_';
 
   public static $keys = [
     'utm_source',
@@ -11,7 +12,41 @@ class CRM_Contributm_Model_Utm {
     'utm_content',
   ];
 
+  private static function getCustomField($name) {
+    $result = civicrm_api3('CustomField', 'get', [
+      'sequential' => 1,
+      'custom_group_id' => self::CUSTOM_GROUP_NAME,
+      'name' => $name,
+    ]);
+    return self::CUSTOM_FIELD_PREFIX . $result['id'];
+  }
 
+  private static function utmField($name) {
+    $key = __CLASS__ . __FUNCTION__ . $name;
+    $cache = Civi::cache()->get($key);
+    if (!isset($cache)) {
+      $id = self::getCustomField("utm_$name");
+      Civi::cache()->set($key, $id);
+      return $id;
+    }
+    return $cache;
+  }
+
+  public static function utmSource() {
+    return self::utmField('source');
+  }
+
+  public static function utmMedium() {
+    return self::utmField('medium');
+  }
+
+  public static function utmCampaign() {
+    return self::utmField('campaign');
+  }
+
+  public static function utmContent() {
+    return self::utmField('content');
+  }
   /**
    * Get utm values from session.
    *
@@ -49,10 +84,10 @@ class CRM_Contributm_Model_Utm {
    */
   public static function getDb($contributionId) {
     $return  = [
-      'utm_source' => Civi::settings()->get('field_contribution_source'),
-      'utm_medium' => Civi::settings()->get('field_contribution_medium'),
-      'utm_campaign' => Civi::settings()->get('field_contribution_campaign'),
-      'utm_content' => Civi::settings()->get('field_contribution_content'),
+      'utm_source' => self::utmSource(),
+      'utm_medium' => self::utmMedium(),
+      'utm_campaign' => self::utmCampaign(),
+      'utm_content' => self::utmContent(),
     ];
     $params = [
       'sequential' => 1,
@@ -87,15 +122,9 @@ class CRM_Contributm_Model_Utm {
       'entity_id' => $contributionId,
       'entity_table' => 'civicrm_contribution',
     );
-    $mapping = [
-      'utm_source' => 'field_contribution_source',
-      'utm_medium' => 'field_contribution_medium',
-      'utm_campaign' => 'field_contribution_campaign',
-      'utm_content' => 'field_contribution_content',
-    ];
-    foreach ($mapping as $field => $setting) {
-      if (CRM_Utils_Array::value($field, $fields)) {
-        $params[Civi::settings()->get($setting)] = CRM_Utils_Array::value($field, $fields);
+    foreach (['source', 'medium', 'campaign', 'content'] as $field) {
+      if (CRM_Utils_Array::value('utm_' . $field, $fields)) {
+        $params[self::utmField($field)] = $fields['utm_' . $field];
       }
     }
     if (count($params) > 3) {
