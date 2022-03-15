@@ -156,15 +156,19 @@ function contributm_civicrm_postSave_civicrm_contribution($dao) {
     CRM_Contributm_Model_Utm::set($dao->id, $utm);
     CRM_Contributm_Model_Utm::clear();
   }
-  if ($dao->contribution_recur_id && !$utm) {
-    $utmRecur = CRM_Contributm_Model_UtmRecur::getDb($dao->contribution_recur_id);
-    if ($utmRecur) {
-      $utmSingle = CRM_Contributm_Model_Utm::getDb($dao->id);
-      if (!$utmSingle) {
-        CRM_Contributm_Model_Utm::set($dao->id, $utmRecur);
-      }
-    }
-  }
+  #
+  #  Setting the UTMs here is conflicting with repeatTransaction and copyCustomValues. I do 
+  #  not know what changed, but since there is a duplicate key error, it seems safe to drop it.
+  #
+  #  if ($dao->contribution_recur_id && !$utm) {
+  #    $utmRecur = CRM_Contributm_Model_UtmRecur::getDb($dao->contribution_recur_id);
+  #    if ($utmRecur) {
+  #      $utmSingle = CRM_Contributm_Model_Utm::getDb($dao->id);
+  #      if (!$utmSingle) {
+  #        CRM_Contributm_Model_Utm::set($dao->id, $utmRecur);
+  #      }
+  #    }
+  #  }
 }
 
 /**
